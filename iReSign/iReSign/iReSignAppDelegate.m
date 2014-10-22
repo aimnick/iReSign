@@ -334,6 +334,24 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
         
         if (![[entitlementField stringValue] isEqualToString:@""]) {
             [arguments addObject:[NSString stringWithFormat:@"--entitlements=%@", [entitlementField stringValue]]];
+        } else {
+            NSString* shellcmd = @"/usr/libexec/PlistBuddy";
+            NSString* EntitlementsOutpath = [NSString stringWithFormat:@"%@/Entitlements.plist", workingPath ];
+            
+            NSString* p1 = @" -x -c 'Print :Entitlements' /dev/stdin <<< `security cms -D -i '";
+            NSString* p2 = @"'` > ";
+            NSString* script = [NSString stringWithFormat:@"%@%@%@%@%@",
+                                shellcmd,
+                                p1,
+                                provisioningPathField,
+                                p2,
+                                EntitlementsOutpath];
+            
+            
+            NSLog(@"%@",script);
+            system([script UTF8String]);
+            
+            [arguments addObject:[NSString stringWithFormat:@"--entitlements=%@", EntitlementsOutpath ]];
         }
         
         [arguments addObjectsFromArray:[NSArray arrayWithObjects:appPath, nil]];
